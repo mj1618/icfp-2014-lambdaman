@@ -124,7 +124,7 @@ public class Parser {
 	}
 
 	public void print(){
-		System.out.println("functions:"+functions.size());
+		System.err.println("functions:"+functions.size());
 		for(String fn : functions.keySet()){
 			Function f = functions.get(fn);
 			Debug.test(f.toString());
@@ -145,7 +145,7 @@ public class Parser {
 				}
 				break;
 			} else {
-				System.out.println("error on line, expecting a function:"+line);
+				System.err.println("error on line, expecting a function:"+line);
 			}
 		}
 		

@@ -43,7 +43,7 @@ public class Expression {
 				n.value = current;
 				return n;
 			} else if(value.charAt(i)=='('){
-				System.out.println("error open bracket not expected");
+				System.err.println("error open bracket not expected");
 			} else {
 				current+=value.charAt(i);
 			}
