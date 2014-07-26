@@ -1,0 +1,49 @@
+  LDC  1
+  LDC  2
+  LDC  3
+  LDC  0
+  CONS
+  CONS
+  CONS   ; list (1 (2 (3 0)))
+  BRK
+  LDF plus1
+  LDF map
+  AP 2
+  BRK
+  RTN
+
+plus1:
+  LD   0 0
+  LDC  1
+  ADD
+  RTN
+
+map:
+  ; expects $list $closure as args
+  ; calls $closure on each element of $list and pushes the resulting list
+  BRK
+  LD   0 0
+  ATOM
+  TSEL map_empty map_cons
+
+map_empty:
+  ; input list was empty => so is output
+  LDC  0
+  RTN
+
+map_cons:
+  ; otherwise we have a CONS
+  LD   0 0
+  CAR
+  LD   0 1
+  AP   1   ; run $closure on CAR($list)
+
+  ; TOS is now the result from $closure
+  LD   0 0
+  CDR
+  LD   0 1
+  LDF  map
+  AP   2   ; recurse to process rest of list
+
+  CONS     ; prepend our result
+  RTN
