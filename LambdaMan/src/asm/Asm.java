@@ -85,7 +85,7 @@ public class Asm {
 			String line;
 			int lineNum = 0;
 			String curLabel = null;
-			while ((line = br.readLine()) != null) {
+			while ((line = br.readLine()) != null && line.equals("END!")==false) {
 				lineNum++;
 				Instruction ins = null;
 				String[] fields = line.split(" +");
