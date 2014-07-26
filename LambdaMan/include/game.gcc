@@ -1,0 +1,25 @@
+; named constants for indexes into the world state
+$const wMap    0
+$const wLambda 1
+$const wGhost  2
+$const wFruit  3
+
+; indexes into lambda-man state
+$const lmVitality  0
+$const lmLocation  1
+$const lmDirection 2
+$const lmLives     3
+$const lmScore     4
+
+$const Wall        0
+$const Empty       1
+$const Pill        2
+$const PowerPill   3
+$const Fruit       4
+$const LambdaStart 5
+$const GhostStart  6
+
+$const dUp    0
+$const dRight 1
+$const dDown  2
+$const dLeft  3

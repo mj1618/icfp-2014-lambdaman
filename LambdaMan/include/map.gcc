@@ -1,0 +1,64 @@
+; requires stdlib.gcc
+
+cell:
+  ; expects MAP and ($x $y) coordinate as args
+  ; returns the entry in the map at position ($x $y)
+  LD   0 0
+  LD   0 1
+  CDR      ; MAP is row-major, so lookup $y-th row first
+  LDF  elt
+  AP   2
+
+  LD   0 1
+  CAR
+  LDF  elt
+  AP   2
+
+  RTN
+  
+
+left:
+  ; expects ($x $y) coordinate pair as arg
+  ; pushes ($x-1 $y)
+  LD   0 0
+  CAR
+  LDC  1
+  SUB
+  LD   0 0
+  CDR
+  CONS
+  RTN
+
+right:
+  ; expects ($x $y) coordinate pair => ($x+1 $y)
+  LD   0 0
+  CAR
+  LDC  1
+  ADD
+  LD   0 0
+  CDR
+  CONS
+  RTN
+
+up:
+  ; expects ($x $y) coordinate pair => ($x $y-1)
+  LD   0 0
+  CAR
+  LD   0 0
+  CDR
+  LDC  1
+  SUB
+  CONS
+  RTN
+
+down:
+  ; expects ($x $y) coordinate pair => ($x $y+1)
+  LD   0 0
+  CAR
+  LD   0 0
+  CDR
+  LDC  1
+  ADD
+  CONS
+  RTN
+
