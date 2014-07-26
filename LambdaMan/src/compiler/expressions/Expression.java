@@ -9,6 +9,8 @@ public class Expression {
 	String value=null;
 	List<Expression> children = new ArrayList<Expression>();
 	
+	
+
 	public boolean isLeaf(){
 		return children.size()==0;
 	}

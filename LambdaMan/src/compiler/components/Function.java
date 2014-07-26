@@ -10,6 +10,7 @@ import compiler.types.OpType;
 
 public class Function {
 
+	boolean isIfElse = false;
 	int line;
 	String name;
 	List<Parameter> params = new ArrayList<Parameter>();
@@ -17,6 +18,14 @@ public class Function {
 	Map<String, Constant> constants = new HashMap<String,Constant>();
 	List<String> assembly = new ArrayList<String>();
 	
+	public boolean isIfElse() {
+		return isIfElse;
+	}
+
+	public void setIfElse(boolean isIfElse) {
+		this.isIfElse = isIfElse;
+	}
+
 	public List<String> getAssembly() {
 		return assembly;
 	}
@@ -116,6 +125,14 @@ public class Function {
 				return i;
 		}
 		return -1;
+	}
+
+	public void addAllConstants(Map<String, Constant> constants) {
+		this.constants.putAll(constants);
+	}
+
+	public void addAllParams(List<Parameter> params) {
+		this.params.addAll(params);
 	}
 	
 }

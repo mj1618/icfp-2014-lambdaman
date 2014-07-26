@@ -4,5 +4,5 @@ public enum OpType {
 
 	FUNCTION_CALL,
 	RETURN, 
-	ASSEMBLY
+	ASSEMBLY, IF
 }

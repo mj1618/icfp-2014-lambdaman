@@ -35,31 +35,77 @@ public class Parser {
 		this.functions = functions;
 	}
 
-	public Parser(){}
-	
+	File f=new File(".");
+	public Parser(File f){
+		this.f=f;
+	}
+	public List<String> importLines(List<String> lines) throws IOException{
+		List<String> imports = new ArrayList<String>();
+		
+		for(int i = 0; i<lines.size()&&lines.get(i).startsWith("import"); i++){
+			String line = lines.get(i);
+			imports.addAll(importLines(readImport(line.split(" ")[1])));
+		}
+		return imports;
+	}
+	private List<String> readImport(String s) throws IOException {
+		File file = new File(f.getCanonicalFile(), s);
+		try {
+			return Files.readAllLines(Paths.get(file.getPath()), Charset.defaultCharset());
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public void init(List<String> lines){
 		trimBlankLines(lines);
-		ListIterator<String> i = lines.listIterator();
-		while(i.hasNext()){
-			Function f = ReadFunctionDeclaration(i);
-			ParseLines(i,f);
+		
+		//read imports
+		
+		try {
+			lines.addAll(importLines(lines));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		ListIterator<String> it = lines.listIterator();
+		while(it.hasNext()){
+			String line = it.next();
+			if(line.startsWith("import")==false){
+				it.previous();
+				break;
+			}
+		}
+		while(it.hasNext()){
+			
+			Function f = readFunctionDeclaration(it);
+			parseLines(it,f);
 			functions.put(f.getName(),f);
 		}
 	}
 	
-	private static void ParseLines(ListIterator<String> it, Function f) {
+	private void useImport(String s) {
+		
+		
+	}
+
+	private void parseLines(ListIterator<String> it, Function f) {
 		while(it.hasNext()){
-			String line = it.next().trim();
-			boolean end = ParseLine(line,f);
+			String original = it.next();
+			String line = original.trim();
+			boolean end = parseLine(line,f,it,original);
 			if(end)
 				return;
 		}
 	}
 	
-	private static boolean ParseLine(String line, Function f){
+	private boolean parseLine(String line, Function f, ListIterator<String> it,String original){
 		String[] code = line.split(" ");
 		
-		if(code[0].equals("end")){
+		if(code[0].equals("end") || code[0].equals("else") || code[0].equals("endif")){
 			return true;
 			
 		} else if(code[0].equals("let")) {
@@ -82,6 +128,18 @@ public class Parser {
 			o.setType(OpType.ASSEMBLY);
 			o.setAssembly(line);
 			f.addOperation(o);
+			
+		}  else if(code[0].equals("if")){
+			Operation o = new Operation();
+			o.setType(OpType.IF);
+			Expression condition= Expression.GetExpression(line.substring("if ".length()));
+			String ifFunc = createIfFunction(it,f);
+			
+			String elseFunc = createElseFunction(it,f);
+			
+			o.setIfElse(condition, ifFunc, elseFunc);
+			f.addOperation(o);
+			
 		} else {
 			Operation o = new Operation();
 			o.setType(OpType.FUNCTION_CALL);
@@ -89,6 +147,29 @@ public class Parser {
 			f.addOperation(o);
 		}
 		return false;
+	}
+
+	private String createElseFunction(ListIterator<String> it,
+			Function parent) {
+		Function f = new Function();
+		f.addAllConstants(parent.getConstants());
+		f.addAllParams(parent.getParams());
+		f.setName(parent.getName()+"Else");
+		f.setIfElse(true);
+		parseLines(it,f);
+		functions.put(f.getName(), f);
+		return f.getName();
+	}
+
+	private String createIfFunction(ListIterator<String> it, Function parent) {
+		Function f = new Function();
+		f.addAllConstants(parent.getConstants());
+		f.addAllParams(parent.getParams());
+		f.setName(parent.getName()+"If");
+		f.setIfElse(true);
+		parseLines(it,f);
+		functions.put(f.getName(), f);
+		return f.getName();
 	}
 
 	public void preprocess(){
@@ -134,7 +215,7 @@ public class Parser {
 		}
 	}
 	
-	public static Function ReadFunctionDeclaration(ListIterator<String> it) {
+	public Function readFunctionDeclaration(ListIterator<String> it) {
 		Function f = new Function();
 		
 		while(it.hasNext()){
@@ -169,7 +250,7 @@ public class Parser {
 	
 	public static Parser Instance(File file){
 		try {
-			return Instance(Files.readAllLines(Paths.get(file.getPath()), Charset.defaultCharset()));
+			return Instance(Files.readAllLines(Paths.get(file.getPath()), Charset.defaultCharset()), file);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -177,8 +258,8 @@ public class Parser {
 		}
 	}
 	
-	public static Parser Instance(List<String> lines){
-		Parser c = new Parser();
+	public static Parser Instance(List<String> lines, File f){
+		Parser c = new Parser(f);
 		c.init(lines);
 		return c;
 	}
@@ -191,7 +272,7 @@ public class Parser {
 			while( (line=br.readLine())!=null && line.equals("END")!=true){
 				lines.add(line);
 			}
-			return Instance(lines);
+			return Instance(lines, new File("."));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

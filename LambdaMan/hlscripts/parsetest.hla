@@ -1,21 +1,23 @@
-def Main state other
-	let board = list state 0
-	let pos = list state 2
+def Main
+	
+	let board = pair (pair 1 (pair 2 3)) (pair 4 (pair 5 6))
+	let pos = pair 0 0
 	let posleft = pair (first pos) (inc (second pos))
-	if (equal (element board (first posleft) (second posleft)) (pill))
+	if equal (element board (first posleft) (second posleft)) (pill)
 		return 3
 	else
 		return 4
+	endif
 end
 
 def pair x y
-	LD 0 1
 	LD 0 0
+	LD 0 1
 	CONS
 end
 
-def element board x y
-	return list (list board x) y
+def element board row col
+	return list (list board row) col
 end
 
 def pill
@@ -23,35 +25,43 @@ def pill
 end
 
 def equal a b
+	LD 0 0
+	LD 0 1
 	CEQ
 end
 
 def list l x
-	if (zero x) 
-	   (first l) 
+	if zero x
+	   first l 
 	else
-	   (list (second l) (dec x))
+	   list (second l) (dec x)
+	endif
 end
 
 def zero x
+	LD 0 0
 	LDC 0
 	CEQ
 end
 
 def first l
+	LD 0 0
 	CAR
 end
 
 def second l
+	LD 0 0
 	CDR
 end
 
 def dec x
 	LDC 1
+	LD 0 0
 	SUB
 end
 
 def inc x
 	LDC 1
+	LD 0 0
 	ADD
 end 
