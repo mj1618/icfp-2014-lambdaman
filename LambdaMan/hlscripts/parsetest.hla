@@ -3,7 +3,7 @@ def Main state other
 	let pos = list state 2
 	let posleft = pair (first pos) (inc (second pos))
 	if element board posleft = pill
-return MoveLeft
+	return 3
 end
 def element board (x, y)
 	return list (list board x) y
@@ -12,5 +12,19 @@ def list l x
 	ifzero x
 	return first l
 	else
-	return list (second l) (sub x)
+	return list (second l) (dec x)
 end
+def first l
+CAR
+end
+def second l
+CDR
+end
+def dec x
+LDC 1
+SUB
+end
+def inc x
+LDC 1
+ADD
+end 
