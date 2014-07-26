@@ -1,0 +1,9 @@
+Ideas for a smart AI:
+
+* build a graph to represent the map
+	* each node in the graph represents either a fork or dead end
+	* each segment is associated with a direction, length
+
+* try and schedule segments near the fruit at times when the fruit is going to appear
+	* need to track current game tick
+

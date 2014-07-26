@@ -1,5 +1,5 @@
 main:
-  LDC  0    ; keeping no state yet
+  LDC  dDown ; keep current direction as state
   LDF  step
   CONS
   RTN
@@ -16,6 +16,85 @@ step:
   LDC  dLeft
 
   CONS
+  RTN
+
+
+walk:
+  ; walks in a direction until hitting a wall (XXX should also stop at junction)
+  ; returns all coordinates traversed.
+  ; arg 0: World.Map
+  ; arg 1: ($x $y) starting position
+  ; arg 2: $closure which advances in the desired direction
+  LD   0 0
+  LD   0 1
+  LD   0 2
+  AP   1
+  LD   0 2
+  LDF  walk_r
+  TAP  3
+
+walk_r:  ; recursion entry point
+  LD   0 0
+  !{World Map}
+  LD   0 1
+  !{func cell 2}
+  LDC  Wall
+  CEQ
+  TSEL walk_wall walk_space
+
+walk_wall:
+  LDC  0
+  RTN
+
+walk_space:
+  LD   0 1
+
+  LD   0 0
+  LD   0 1
+  LD   0 2
+  AP   1
+  LD   0 2
+  !{func walk_r 3}
+
+  CONS
+  RTN
+
+
+
+isJunction:
+  ; arg 0: World.Map
+  ; arg 1: ($x $y) pair as arg
+  ; pushes 1 if the position is a junction, 0 otherwise
+  LDC  2               ; 2
+
+  LD   0 1
+  !{func neighbours 1}
+  LDF isJunction_cell
+  !{func map 2}
+  LDF isWall
+  !{func map 2}
+  LDF sum2
+  !{func reduce 2}     ; number of adjacent walls on TOS
+
+  CGT                  ; 2 > #walls?
+  RTN
+
+isJunction_cell:
+  LD   1 0
+  LD   0 0
+  LDF  cell
+  TAP  2
+
+isWall:
+  LD   0 0
+  LDC  Wall
+  CEQ
+  RTN
+
+sum2:
+  LD   0 0
+  LD   0 1
+  ADD
   RTN
 
 neighbours:
@@ -39,8 +118,6 @@ neighbours:
 curried_cell:
   ; gets called by map with just a coordinate. references the
   ; parent environment to get the game map.
-  LD 0 0
-  DBUG
   LD 1 1
   !{World Map}
   LD 0 0
