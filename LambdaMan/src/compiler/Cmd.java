@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-import asm.Asm.AsmDoc;
+import asm.AsmDoc;
 import compiler.Compiler;
 
 /* frontend for compiler + assembler */
