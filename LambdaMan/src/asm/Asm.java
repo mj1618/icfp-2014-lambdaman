@@ -14,6 +14,7 @@ import java.util.Map;
 
 import compiler.components.Function;
 import util.Pair;
+import util.Utils;
 
 public class Asm {
 	public static class AsmException extends RuntimeException {
@@ -24,10 +25,6 @@ public class Asm {
 		public AsmException(int lineNum, String line, String error) {
 			super(String.format("line %d: %s: %s", lineNum, error, line));
 		}
-	}
-
-	static boolean isLiteralInt(String token) {
-		return token.matches("[0-9]+");
 	}
 
 	private static class Instruction {
@@ -57,7 +54,7 @@ public class Asm {
 			sb.append(String.format("%-5s", name));
 			for (int i = 0; i < args.size(); i++) {
 				String arg = args.get(i);
-				if (isLiteralInt(arg)) {
+				if (Utils.IsInteger(arg)) {
 					sb.append(" ").append(arg);
 				} else if (def.args[i] == InstructionDef.Arg.ADDR) {
 					Integer addr = labels.get(arg);
@@ -99,7 +96,7 @@ public class Asm {
 			if (fields.length < 3) {
 				throw new AsmException(lineNum, line, "constant definition must be on one line");
 			}
-			if (!isLiteralInt(fields[2])) {
+			if (!Utils.IsInteger(fields[2])) {
 				throw new AsmException(lineNum, line, "constant value must be literal int");
 			}
 			result.constant = new Pair<>(fields[1], Integer.valueOf(fields[2]));

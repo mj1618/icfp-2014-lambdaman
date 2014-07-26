@@ -8,7 +8,7 @@ import java.util.Map;
 
 import compiler.components.*;
 import compiler.expressions.Expression;
-import compiler.utils.Utils;
+import util.Utils;
 
 public class Compiler {
 
