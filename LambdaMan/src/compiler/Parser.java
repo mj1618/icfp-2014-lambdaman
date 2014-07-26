@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -25,7 +26,7 @@ import compiler.types.OpType;
 
 public class Parser {
 
-	Map<String,Function> functions = new HashMap<String,Function>();
+	Map<String,Function> functions = new LinkedHashMap<String,Function>();
 	
 	public Map<String, Function> getFunctions() {
 		return functions;
@@ -60,7 +61,7 @@ public class Parser {
 	}
 
 	public void init(List<String> lines){
-		trimBlankLines(lines);
+		//trimBlankLines(lines);
 		
 		//read imports
 		
@@ -96,13 +97,15 @@ public class Parser {
 		while(it.hasNext()){
 			String original = it.next();
 			String line = original.trim();
-			boolean end = parseLine(line,f,it,original);
+			if (line.isEmpty())
+				continue;
+			boolean end = parseLine(it.nextIndex(),line,f,it,original);
 			if(end)
 				return;
 		}
 	}
 	
-	private boolean parseLine(String line, Function f, ListIterator<String> it,String original){
+	private boolean parseLine(int lineNum, String line, Function f, ListIterator<String> it,String original){
 		String[] code = line.split(" ");
 		
 		if(code[0].equals("end") || code[0].equals("else") || code[0].equals("endif")){
@@ -112,7 +115,7 @@ public class Parser {
 			Constant c = new Constant();
 			c.setName(code[1]);
 			String value = line.split("=")[1].substring(1);
-			Expression exp = Expression.GetExpression(value);
+			Expression exp = Expression.GetExpression(lineNum, value);
 			c.setExpression(exp);
 			f.addConstant(c);
 			
@@ -120,7 +123,7 @@ public class Parser {
 			Operation o = new Operation();
 			o.setType(OpType.RETURN);
 			String value = line.substring("return ".length());
-			o.setExpression(Expression.GetExpression(value));
+			o.setExpression(Expression.GetExpression(lineNum, value));
 			f.addOperation(o);
 			
 		} else if(Assembly.IsAssembly(code[0])){
@@ -132,7 +135,7 @@ public class Parser {
 		}  else if(code[0].equals("if")){
 			Operation o = new Operation();
 			o.setType(OpType.IF);
-			Expression condition= Expression.GetExpression(line.substring("if ".length()));
+			Expression condition= Expression.GetExpression(lineNum,line.substring("if ".length()));
 			String ifFunc = createIfFunction(it,f);
 			
 			String elseFunc = createElseFunction(it,f);
@@ -143,7 +146,7 @@ public class Parser {
 		} else {
 			Operation o = new Operation();
 			o.setType(OpType.FUNCTION_CALL);
-			o.setExpression(Expression.GetExpression(line));
+			o.setExpression(Expression.GetExpression(lineNum, line));
 			f.addOperation(o);
 		}
 		return false;
@@ -220,34 +223,25 @@ public class Parser {
 		
 		while(it.hasNext()){
 			String line = it.next().trim();
+			if (line.isEmpty())
+				continue;
 			
 			if(line.startsWith("def")){
 				String[] decl = line.split(" ");
+				f.setLine(it.nextIndex());
 				f.setName(decl[1]);
 				for(int i = 2; i<decl.length; i++){
 					f.addParam(decl[i]);
 				}
 				break;
 			} else {
-				System.err.println("error on line, expecting a function:"+line);
+				System.err.println(it.nextIndex() + ": error on line, expecting a function:"+line);
 			}
 		}
 		
 		return f;
 	}
 
-	
-	private void trimBlankLines(List<String> lines) {
-		ListIterator<String> i = lines.listIterator();
-		while(i.hasNext()){
-			String line = i.next();
-			if(line.trim().isEmpty()){
-				i.remove();
-			}
-		}
-	}
-	
-	
 	public static Parser Instance(File file){
 		try {
 			return Instance(Files.readAllLines(Paths.get(file.getPath()), Charset.defaultCharset()), file);

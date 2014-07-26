@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Expression {
-
+	public final int lineNum;
 	
 	String value=null;
 	List<Expression> children = new ArrayList<Expression>();
@@ -15,26 +15,27 @@ public class Expression {
 		return children.size()==0;
 	}
 	
-	public Expression(String s){
+	public Expression(int lineNum, String s){
+		this.lineNum = lineNum;
 		value=s;
 	}
-	public Expression(){
-		
+	public Expression(int lineNum){
+		this.lineNum = lineNum;
 	}
 	static int i = 0;
 	
-	public static Expression GetExpression(String value){
+	public static Expression GetExpression(int lineNum, String value){
 		i=0;
-		return from("("+value+")");
+		return from(lineNum, "("+value+")");
 	}
 	
-	private static Expression from(String value) {
+	private static Expression from(int lineNum, String value) {
 		boolean hasChildren = true;
 		if(value.charAt(i)=='(')i++;
 		else hasChildren = false;
 		
 		String current="";
-		Expression n = new Expression();
+		Expression n = new Expression(lineNum);
 		
 		//read function name
 		for(; i<value.length(); i++){
@@ -45,7 +46,7 @@ public class Expression {
 				n.value = current;
 				return n;
 			} else if(value.charAt(i)=='('){
-				System.err.println("error open bracket not expected");
+				System.err.println(lineNum + ": error open bracket not expected");
 			} else {
 				current+=value.charAt(i);
 			}
@@ -54,7 +55,7 @@ public class Expression {
 		if(!hasChildren)return n;
 		i++;
 		for(; i<value.length(); i++){
-			n.children.add(from(value));
+			n.children.add(from(lineNum, value));
 			if(i<value.length() && value.charAt(i)==')'){
 				i++;
 				return n;
@@ -93,6 +94,6 @@ public class Expression {
 	}
 	
 	public static void main(String args[]){
-		System.out.println(Expression.from("(0)").toString());
+		System.out.println(Expression.from(0, "(0)").toString());
 	}
 }

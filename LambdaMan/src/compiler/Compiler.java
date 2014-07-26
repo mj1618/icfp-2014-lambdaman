@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.StringBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.Map;
 import asm.Asm;
 import compiler.components.*;
 import compiler.expressions.Expression;
-import compiler.utils.Utils;
+import util.Utils;
 
 public class Compiler {
 
@@ -68,7 +69,7 @@ public class Compiler {
 			if(Utils.IsInteger(e.getValue())){
 				asm.add("LDC "+e.getValue());
 			} else if (f.parameterIndex(e.getValue())>=0) {
-				asm.add("LD 0 "+f.parameterIndex(e.getValue()));
+				asm.add("LD 0 "+f.parameterIndex(e.getValue()) + "   ; " + e.getValue());
 			} else {
 				asm.add("LDF "+e.getValue());
 			}
@@ -160,7 +161,7 @@ public class Compiler {
 		}
 	}
 
-	private static Compiler Instance(File file) throws IOException {
+	static Compiler Instance(File file) throws IOException {
 		Parser p = Parser.Instance(file);
 		p.preprocess();
 		return new Compiler(p.getFunctions(), file.getCanonicalPath());

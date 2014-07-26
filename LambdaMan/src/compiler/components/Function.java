@@ -96,13 +96,17 @@ public class Function {
 		operations.add(o);
 	}
 
-	public String toString(){
-		String s="";
-		
-		s="def "+name;
-		for(Parameter p:params){
-			s+=" "+p.getName();
+	public String getSignature() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("def ").append(name);
+		for (Parameter p:params) {
+			sb.append(" ").append(p.getName());
 		}
+		return sb.toString();
+	}
+
+	public String toString(){
+		String s=getSignature();
 		s+="\n";
 
 		for(Constant c:getConstants().values()){

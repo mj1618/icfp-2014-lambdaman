@@ -1,4 +1,4 @@
-package compiler.utils;
+package util;
 
 public class Utils {
 	public static boolean IsInteger(String s){
