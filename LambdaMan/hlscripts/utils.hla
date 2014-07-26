@@ -5,6 +5,10 @@ def pair x y
 	CONS
 end
 
+def map_get board row col
+	return list_get (list_get board row) col
+end
+
 def element board row col
 	return list_get (list_get board row) col
 end
@@ -21,9 +25,9 @@ end
 
 def list_get l x
 	if zero x
-	   first l 
+	   return first l 
 	else
-	   list_get (second l) (dec x)
+	   return list_get (second l) (dec x)
 	endif
 end
 

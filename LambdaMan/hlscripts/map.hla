@@ -15,7 +15,7 @@ def map m x
   RTN
 end
  
-def left x y
+def left p
 
   ; expects ($x $y) coordinate pair as arg
   ; pushes ($x-1 $y)
@@ -28,7 +28,7 @@ def left x y
   CONS
   RTN
 end
-def right x y
+def right p
   ; expects ($x $y) coordinate pair => ($x+1 $y)
   LD   0 0
   CAR
@@ -39,7 +39,7 @@ def right x y
   CONS
   RTN
 end
-def up x y
+def up p
   ; expects ($x $y) coordinate pair => ($x $y-1)
   LD   0 0
   CAR
@@ -50,7 +50,7 @@ def up x y
   CONS
   RTN
 end
-def down x y
+def down p
   ; expects ($x $y) coordinate pair => ($x $y+1)
   LD   0 0
   CAR

@@ -1,13 +1,38 @@
 import utils.hla
+import list.hla
+import map.hla
 
 def Main state ghost
 	return init state ghost
 end
 
 def init state ghost
-	return pair state step
+	
+	return pair 0 step
 end
 
-def step state direction
-	return pair state 1
+
+def step aistate worldstate
+	let board = first worldstate
+	let pos = first (second (first (second worldstate)))
+	
+	if equal (map board (left pos)) 2
+		return pair 0 3
+	else
+		if equal (map board (right pos)) 2
+			return pair 0 1
+		else
+			if equal (map board (down pos)) 2
+				return pair 0 2
+			else
+				if equal (map board (up pos)) 2
+					return pair 0 0
+				else
+					return pair 0 0
+				endif
+			endif
+		endif
+	endif
+	
+	
 end
