@@ -83,7 +83,7 @@ public class Compiler {
 		}
 	}
 
-	private static Compiler Instance(File file) {
+	public static Compiler Instance(File file) {
 		Parser p = Parser.Instance(file);
 		p.preprocess();
 		return new Compiler(p.getFunctions());
