@@ -1,60 +1,6 @@
+import utils.hla
+
 def Main
 	let x = pair (pair 1 2) (pair 3 4)
 	return list x 1
 end
-
-def pair x y
-	LD 0 0
-	LD 0 1
-	CONS
-end
-
-def element board x y
-	return list (list board x) y
-end
-
-def pill
-	LDC 2
-end
-
-def equal a b
-	LD 0 0
-	LD 0 1
-	CEQ
-end
-
-def list l x
-	if zero x
-	   return first l 
-	else
-	   return list (second l) (dec x)
-	endif
-end
-
-def zero x
-	LD 0 0
-	LDC 0
-	CEQ
-end
-
-def first l
-	LD 0 0
-	CAR
-end
-
-def second l
-	LD 0 0
-	CDR
-end
-
-def dec x
-	LD 0 0
-	LDC 1
-	SUB
-end
-
-def inc x
-	LDC 1
-	LD 0 0
-	ADD
-end 

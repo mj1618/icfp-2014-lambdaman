@@ -168,12 +168,12 @@ public class Compiler {
 	}
 	
 	public static void main(String args[]){
-		File f = (args.length > 1) ? new File(args[0]) : new File(new File("hlscripts"), "parameterFunctions.hla");
+		File f = (args.length > 1) ? new File(args[0]) : new File(new File("hlscripts"), "parsetest.hla");
 		Compiler c;
 		try {
 			c = Compiler.Instance(f);
 			c.compile();
-			//c.printCompiled();
+//			c.printCompiled();
 			
 			c.assemble();
 			c.printMachineCode();

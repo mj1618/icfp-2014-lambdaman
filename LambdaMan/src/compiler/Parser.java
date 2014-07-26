@@ -45,14 +45,18 @@ public class Parser {
 		
 		for(int i = 0; i<lines.size()&&lines.get(i).startsWith("import"); i++){
 			String line = lines.get(i);
-			imports.addAll(importLines(readImport(line.split(" ")[1])));
+			List<String> newImports = readImport(line.split(" ")[1]);
+			imports.addAll(newImports);
+			imports.addAll(importLines(newImports));
 		}
 		return imports;
 	}
 	private List<String> readImport(String s) throws IOException {
-		File file = new File(f.getCanonicalFile(), s);
+		File file = new File(f.getParent(), s);
 		try {
-			return Files.readAllLines(Paths.get(file.getPath()), Charset.defaultCharset());
+			List<String> imports= Files.readAllLines(Paths.get(file.getPath()), Charset.defaultCharset());
+			
+			return imports;
 		} catch (IOException e) {
 			
 			e.printStackTrace();
