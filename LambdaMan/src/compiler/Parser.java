@@ -101,6 +101,9 @@ public class Parser {
 	}
 
 	private void replaceConstants(Operation o, Map<String, Constant> constants) {
+		for(Constant c:constants.values()){
+			replaceConstants(c.getExpression(), constants);
+		}
 		if(o.getType()!=OpType.ASSEMBLY){
 			replaceConstants(o.getExpression(), constants);
 		}
