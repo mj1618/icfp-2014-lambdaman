@@ -108,5 +108,14 @@ public class Function {
 		
 		return s;
 	}
+
+	public int parameterIndex(String value) {
+		
+		for(int i = 0; i<this.params.size(); i++){
+			if(params.get(i).getName().equals(value))
+				return i;
+		}
+		return -1;
+	}
 	
 }

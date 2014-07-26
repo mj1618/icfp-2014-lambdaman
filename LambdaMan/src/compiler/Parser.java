@@ -27,6 +27,14 @@ public class Parser {
 
 	Map<String,Function> functions = new HashMap<String,Function>();
 	
+	public Map<String, Function> getFunctions() {
+		return functions;
+	}
+
+	public void setFunctions(Map<String, Function> functions) {
+		this.functions = functions;
+	}
+
 	public Parser(){}
 	
 	public void init(List<String> lines){
