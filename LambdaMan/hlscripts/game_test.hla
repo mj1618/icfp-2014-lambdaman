@@ -1,0 +1,13 @@
+import utils.hla
+
+def Main state ghost
+	return init state ghost
+end
+
+def init state ghost
+	return pair state step
+end
+
+def step state direction
+	return pair state 1
+end

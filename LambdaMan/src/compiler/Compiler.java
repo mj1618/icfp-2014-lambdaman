@@ -168,7 +168,7 @@ public class Compiler {
 	}
 	
 	public static void main(String args[]){
-		File f = (args.length > 1) ? new File(args[0]) : new File(new File("hlscripts"), "map_test.hla");
+		File f = (args.length > 1) ? new File(args[0]) : new File(new File("hlscripts"), "game_test.hla");
 		Compiler c;
 		try {
 			c = Compiler.Instance(f);
