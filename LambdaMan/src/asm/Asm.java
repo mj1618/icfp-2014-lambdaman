@@ -29,13 +29,14 @@ public class Asm {
 		return token.matches("[0-9]+");
 	}
 
-	private static class Instruction {
+	protected static class Instruction {
 		final int lineNum; /* for error reporting */
 		final String name;
 		public final List<String> args = new ArrayList<>();
 		private final InstructionDef def;
+		public String comment;
 
-		Instruction(int lineNum, String name) {
+		protected Instruction(int lineNum, String name) {
 			this.lineNum = lineNum;
 			this.name = name;
 			try {
@@ -43,6 +44,10 @@ public class Asm {
 			} catch (IllegalArgumentException e) {
 				throw new AsmException(lineNum, "no such instruction " + name);
 			}
+		}
+
+		public Instruction(String origin, String field) {
+			this(Integer.parseInt(origin), field);
 		}
 
 		public void checkArgs() throws AsmException {
