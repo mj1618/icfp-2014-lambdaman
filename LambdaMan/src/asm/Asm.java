@@ -5,6 +5,8 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.StringBuilder;
 import java.util.ArrayList;
@@ -157,6 +159,18 @@ public class Asm {
 		return file.substring(0, dot) + "." + newExt;
 	}
 
+	public static BufferedReader Assemble(Reader r) throws IOException{
+		StringWriter w = new StringWriter();
+		try{
+				new AsmDoc(r).writeTo(w);
+				return new BufferedReader(new StringReader(w.getBuffer().toString()));
+			} catch (AsmException e) {
+				System.err.printf("stdin: %s\n", e.getMessage());
+				e.printStackTrace(System.err);
+				return null;
+			}
+		
+	}
 
 	public static void main(String[] args) throws IOException {
 		try (

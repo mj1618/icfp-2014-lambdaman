@@ -2,8 +2,10 @@ def Main state other
 	let board = list state 0
 	let pos = list state 2
 	let posleft = pair (first pos) (inc (second pos))
-	ifeq (element board (first posleft) (second posleft)) (pill)
-	return 3
+	if (equal (element board (first posleft) (second posleft)) (pill))
+		return 3
+	else
+		return 4
 end
 
 def pair x y
@@ -20,18 +22,18 @@ def pill
 	LDC 2
 end
 
-def ifeq a b
+def equal a b
 	CEQ
 end
 
 def list l x
-	ifzero x
-	return first l
+	if (zero x) 
+	   (first l) 
 	else
-	return list (second l) (dec x)
+	   (list (second l) (dec x))
 end
 
-def ifzero x
+def zero x
 	LDC 0
 	CEQ
 end

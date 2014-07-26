@@ -1,11 +1,17 @@
 package compiler;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import asm.Asm;
 import compiler.components.*;
 import compiler.expressions.Expression;
 import compiler.utils.Utils;
@@ -13,6 +19,7 @@ import compiler.utils.Utils;
 public class Compiler {
 
 	Map<String,Function> functions;
+	List<String> machineCode = new ArrayList<String>();
 	public Compiler(Map<String,Function> functions){
 		this.functions=functions;
 	}
@@ -49,7 +56,7 @@ public class Compiler {
 		if(e.isLeaf()){
 			if(Utils.IsInteger(e.getValue())){
 				asm.add("LDC "+e.getValue());
-			} else if (f.parameterIndex(e.getValue())>0) {
+			} else if (f.parameterIndex(e.getValue())>=0) {
 				asm.add("LD 0 "+f.parameterIndex(e.getValue()));
 			} else {
 				asm.add("LDF "+e.getValue());
@@ -74,12 +81,41 @@ public class Compiler {
 		return asm;
 	}
 	
-	public void print(){
+	public void printMachineCode(){
+		for(String line:machineCode){
+			System.out.println(line);
+		}
+	}
+	
+	public void printCompiled(){
+		System.out.println(compiledToString());
+	}
+	
+	public String compiledToString(){
+		String s ="";
 		for(Function f: functions.values()){
-			System.out.println(f.getName()+":");
-			for(String s:f.getAssembly()){
-				System.out.println(s);
+			s+=f.getName()+":"+"\n";
+			for(String asm:f.getAssembly()){
+				s+=asm+"\n";
 			}
+		}
+		return s;
+	}
+	
+	public void assemble(){
+		
+		try {
+			BufferedReader br = Asm.Assemble(new StringReader(compiledToString()));
+			if(br==null){
+				Debug.error("Failed to assemble");
+				return;
+			}
+			String line;
+			while((line=br.readLine())!=null){
+				machineCode.add(line);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -93,6 +129,9 @@ public class Compiler {
 		File f = (args.length > 1) ? new File(args[0]) : new File(new File("hlscripts"), "parsetest.hla");
 		Compiler c = Compiler.Instance(f);
 		c.compile();
-		c.print();
+		//c.printCompiled();
+		
+		c.assemble();
+		c.printMachineCode();
 	}
 }

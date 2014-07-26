@@ -14,7 +14,7 @@ public enum InstructionDef {
 	CONS(),
 	CAR(),
 	CDR(),
-	SEL(Arg.ADDR),
+	SEL(Arg.ADDR,Arg.ADDR),
 	JOIN(),
 	LDF(Arg.ADDR),
 	AP(Arg.INT),
