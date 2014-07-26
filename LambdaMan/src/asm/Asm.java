@@ -1,9 +1,9 @@
 package asm;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.StringBuilder;
@@ -134,19 +134,13 @@ public class Asm {
 
 
 	public static void main(String[] args) throws IOException {
-		for (String inFile : args) {
-			String outFile = replaceExtension(inFile, "absgcc");
-			if (outFile.equals(inFile)) {
-				System.err.printf("%s: refusing to overwrite input file\n", inFile);
-			}
-			try (
-				FileReader reader = new FileReader(inFile);
-				FileWriter writer = new FileWriter(outFile)
-			) {
-				new AsmDoc(reader).writeTo(writer);
-			} catch (AsmException e) {
-				System.err.printf("%s: %s\n", inFile, e.getMessage());
-			}
+		try (
+			Reader reader = new InputStreamReader(System.in);
+			Writer writer = new OutputStreamWriter(System.out);
+		) {
+			new AsmDoc(reader).writeTo(writer);
+		} catch (AsmException e) {
+			System.err.printf("stdin: %s\n", e.getMessage());
 		}
 	}
 }
