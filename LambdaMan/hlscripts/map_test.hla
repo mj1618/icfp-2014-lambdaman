@@ -1,0 +1,10 @@
+import utils.hla
+import list.hla
+import map.hla
+
+def Main
+	
+	let board = pair (pair 1 (pair 2 3)) (pair 4 (pair 5 6))
+	
+	map board (pair 0 0)
+end

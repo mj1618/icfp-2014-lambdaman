@@ -101,7 +101,7 @@ public class Parser {
 		while(it.hasNext()){
 			String original = it.next();
 			String line = original.trim();
-			if (line.isEmpty())
+			if (line.isEmpty() || line.startsWith(";"))
 				continue;
 			boolean end = parseLine(it.nextIndex(),line,f,it,original);
 			if(end)
@@ -227,7 +227,7 @@ public class Parser {
 		
 		while(it.hasNext()){
 			String line = it.next().trim();
-			if (line.isEmpty())
+			if (line.isEmpty() || line.startsWith(";"))
 				continue;
 			
 			if(line.startsWith("def")){

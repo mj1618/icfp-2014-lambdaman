@@ -1,0 +1,125 @@
+; stdlib.gcc contains standard "system" functions, not
+; specific to any of the game logic.
+
+def elt list int
+  ; expects $list $int as args. assumes $int is >= 0.
+  ; pushes the $int'th index of $list onto stack
+  LD   0 0
+  LD   0 1
+  TSEL elt_recurse elt_done
+end
+
+def elt_done int
+  ; $int == 0 => push CAR of $list and we're done
+  CAR
+  RTN
+end
+def elt_recurse int list
+  ; $int > 0
+  CDR       ; push CDR($list)
+  LD   0 1
+  LDC  1
+  SUB       ; push $int - 1
+  LDF  elt
+  TAP  2
+end
+
+def map list closure
+  ; expects $list $closure as args
+  ; calls $closure on each element of $list and pushes the resulting list
+  LD   0 0
+  ATOM
+  TSEL map_empty map_cons
+end
+
+def map_empty
+  ; input list was empty => so is output
+  LDC  0
+  RTN
+end
+
+def map_cons
+  ; otherwise we have a CONS
+  LD   0 0
+  CAR
+  LD   0 1
+  AP   1   ; run $closure on CAR($list)
+
+  ; TOS is now the result from $closure
+  LD   0 0
+  CDR
+  LD   0 1
+  LDF  map
+  AP   2   ; recurse to process rest of list
+
+  CONS     ; prepend our result
+  RTN
+end
+
+def reduce list closure
+  ; expects $list $closure as args
+  ; returns a single list element by repeatedly passing two elements
+  ; to $closure, which should return the argument to be kept
+  LD   0 0
+  ATOM
+  TSEL reduce_empty reduce_cons
+end
+
+def reduce_empty list
+  ; input list was empty => return 0
+  LDC  0
+  RTN
+end
+
+def reduce_cons list
+  LD   0 0
+  CDR
+  ATOM
+  TSEL reduce_last reduce_mid
+end
+
+def reduce_last list
+  ; we're on the last CONS of the list, just return CAR
+  LD   0 0
+  CAR
+  RTN
+end
+
+def reduce_mid list int
+  ; in the middle of the list. get the value from reducing the rest
+  ; of the list, and then call $closure against the current value.
+  LD   0 0
+  CDR
+  LD   0 1
+  ; optimisation - we know CDR is a cons (otherwise we would have
+  ; branched to reduce_last). so, we can recurse directly into
+  ; reduce_cons instead of the function's normal entry point.
+  LDF  reduce_cons
+  AP   2
+
+  ; now we have the reduce result on the stack, push our CAR and
+  ; call $closure
+  LD   0 0
+  CAR
+  LD   0 1
+  AP   2
+  RTN
+end
+
+def max2 a b
+  ; returns the largest of the two arguments.
+  LD   0 0
+  LD   0 1
+  CGTE
+  TSEL max2_first max2_second
+end
+
+def max2_first a b
+  LD   0 0
+  RTN
+end
+
+def max2_second a b
+  LD   0 1
+  RTN
+ end

@@ -2,5 +2,5 @@ import utils.hla
 
 def Main
 	let x = pair (pair 1 2) (pair 3 4)
-	return list x 1
+	return list_get x 1
 end

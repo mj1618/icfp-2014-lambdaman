@@ -6,7 +6,7 @@ def pair x y
 end
 
 def element board row col
-	return list (list board row) col
+	return list_get (list_get board row) col
 end
 
 def pill
@@ -19,11 +19,11 @@ def equal a b
 	CEQ
 end
 
-def list l x
+def list_get l x
 	if zero x
 	   first l 
 	else
-	   list (second l) (dec x)
+	   list_get (second l) (dec x)
 	endif
 end
 

@@ -1,0 +1,8 @@
+import list.hla
+import utils.hla
+
+def Main
+	let list = pair 1 (pair 2 (pair 3 4))
+	return elt list 2
+	
+end
