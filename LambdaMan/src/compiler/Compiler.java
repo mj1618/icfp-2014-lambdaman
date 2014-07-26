@@ -84,13 +84,14 @@ public class Compiler {
 	}
 
 	private static Compiler Instance(File file) {
-		Parser p = Parser.Instance(new File("hlscripts\\parsetest.hla"));
+		Parser p = Parser.Instance(file);
 		p.preprocess();
 		return new Compiler(p.getFunctions());
 	}
 	
 	public static void main(String args[]){
-		Compiler c = Compiler.Instance(new File("hlscripts\\parsetest.hla"));
+		File f = (args.length > 1) ? new File(args[0]) : new File(new File("hlscripts"), "parsetest.hla");
+		Compiler c = Compiler.Instance(f);
 		c.compile();
 		c.print();
 	}
