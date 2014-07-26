@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import compiler.components.Function;
+import util.Pair;
+
 public class Asm {
 	public static class AsmException extends RuntimeException {
 		public AsmException(int lineNum, String error) {
@@ -59,13 +62,13 @@ public class Asm {
 				} else if (def.args[i] == InstructionDef.Arg.ADDR) {
 					Integer addr = labels.get(arg);
 					if (addr == null) {
-						throw new AsmException(lineNum, "undefined label " + arg);
+						throw new AsmException(lineNum, "undefined label '" + arg + "'");
 					}
 					sb.append(" ").append(addr);
 				} else {
 					Integer val = constants.get(arg);
 					if (val == null) {
-						throw new AsmException(lineNum, "undefined constant " + arg);
+						throw new AsmException(lineNum, "undefined constant '" + arg + "'");
 					}
 					sb.append(" ").append(val);
 				}
@@ -74,62 +77,82 @@ public class Asm {
 		}
 	}
 
-	private static class AsmDoc {
+	private static class ParseResult {
+		String label;
+		Instruction ins;
+		Pair<String, Integer> constant;
+
+		static ParseResult label(String label) {
+			ParseResult pr = new ParseResult();
+			pr.label = label;
+			return pr;
+		}
+	}
+
+	private static ParseResult parseLine(int lineNum, String line) {
+		ParseResult result = new ParseResult();
+		String[] fields = line.split(" +");
+		if (fields.length == 0) {
+			return result;
+		}
+		if (fields[0].equals("$const")) {
+			if (fields.length < 3) {
+				throw new AsmException(lineNum, line, "constant definition must be on one line");
+			}
+			if (!isLiteralInt(fields[2])) {
+				throw new AsmException(lineNum, line, "constant value must be literal int");
+			}
+			result.constant = new Pair<>(fields[1], Integer.valueOf(fields[2]));
+			return result;
+		}
+		for (String field : fields) {
+			if (field.length() == 0)
+				continue;
+			if (field.charAt(0) == ';')
+				return result; // ; marks start of comment, skip rest of line
+			if (result.ins == null) {
+				if (field.endsWith(":")) {
+					/* this is a label not an instruction */
+					result.label = field.substring(0, field.length() - 1);
+				} else {
+					result.ins = new Instruction(lineNum, field);
+				}
+			} else {
+				result.ins.args.add(field);
+			}
+		}
+		return result;
+	}
+
+	public static class AsmDoc {
 		final List<Instruction> instructions = new ArrayList<>();
 		final Map<String, Integer> labels = new HashMap<>();
 		final Map<String, Integer> constants = new HashMap<>();
 
-		/* parses the incoming data to generate a doc */
-		AsmDoc(Reader r) throws IOException {
-			BufferedReader br = new BufferedReader(r);
-			String line;
+		private class ParseContext {
 			int lineNum = 0;
-			String curLabel = null;
-			while ((line = br.readLine()) != null && line.equals("END!")==false) {
-				lineNum++;
-				Instruction ins = null;
-				String[] fields = line.split(" +");
-				if (fields.length == 0) {
-					continue;
-				}
-				if (fields[0].equals("$const")) {
+			String curLabel;
+
+			void handle(ParseResult result) {
+				if (result.constant != null) {
 					if (curLabel != null) {
-						throw new AsmException(lineNum, line, "expected instruction to follow label");
+						throw new AsmException(lineNum, "expected instruction to follow label");
 					}
-					if (fields.length < 3) {
-						throw new AsmException(lineNum, line, "constant definition must be on one line");
+					if (constants.containsKey(result.constant.first)) {
+						throw new AsmException(lineNum, "duplicate constant " + result.constant.first);
 					}
-					if (constants.containsKey(fields[1])) {
-						throw new AsmException(lineNum, line, "duplicate constant " + fields[1]);
-					}
-					if (!isLiteralInt(fields[2])) {
-						throw new AsmException(lineNum, line, "constant value must be literal int");
-					}
-					constants.put(fields[1], Integer.valueOf(fields[2]));
-					continue;
+					constants.put(result.constant.first, result.constant.second);
+					return;
 				}
-				for (String field : fields) {
-					if (field.length() == 0)
-						continue;
-					if (field.charAt(0) == ';')
-						break; // ; marks start of comment, skip rest of line
-					if (ins == null) {
-						if (field.endsWith(":")) {
-							/* this is a label not an instruction */
-							if (curLabel != null) {
-								throw new AsmException(lineNum, line, "two adjacent labels");
-							}
-							curLabel = field.substring(0, field.length() - 1);
-						} else {
-							ins = new Instruction(lineNum, field);
-						}
-					} else {
-						ins.args.add(field);
+				if (result.label != null) {
+					if (curLabel != null) {
+						throw new AsmException(lineNum, "two adjacent labels " + curLabel + " and " + result.label);
 					}
+					curLabel = result.label;
 				}
-				if (ins != null) {
-					ins.checkArgs();
-					instructions.add(ins);
+				if (result.ins != null) {
+					result.ins.checkArgs();
+					instructions.add(result.ins);
 					if (curLabel != null) {
 						if (labels.containsKey(curLabel)) {
 							throw new AsmException(lineNum, "duplicate label " + curLabel);
@@ -141,6 +164,38 @@ public class Asm {
 			}
 		}
 
+		public AsmDoc(Map<String, Function> functions) {
+			boolean first = true;
+			for (Map.Entry<String, Function> entry : functions.entrySet()) {
+				String fnName = entry.getKey();
+				if (first && !fnName.toLowerCase().equals("main")) {
+					System.err.println("asm: warning: first function is '" + entry.getKey() + "' instead of 'main'");
+				}
+				first = false;
+				ParseContext ctx = new ParseContext();
+				ctx.handle(ParseResult.label(fnName));
+				try {
+					for (String ins : entry.getValue().getAssembly()) {
+						ctx.lineNum++;
+						ctx.handle(parseLine(ctx.lineNum, ins));
+					}
+				} catch (AsmException e) {
+					System.err.println("function " + fnName + ": " + e.getMessage());
+				}
+			}
+		}
+
+		/* parses the incoming data to generate a doc */
+		AsmDoc(Reader r) throws IOException {
+			BufferedReader br = new BufferedReader(r);
+			String line;
+			ParseContext ctx = new ParseContext();
+			while ((line = br.readLine()) != null && line.equals("END!")==false) {
+				ctx.lineNum++;
+				ctx.handle(parseLine(ctx.lineNum, line));
+			}
+		}
+
 		public void writeTo(Writer w) throws IOException {
 			for (Instruction ins : instructions) {
 				w.write(ins.toString(labels, constants));
@@ -148,15 +203,6 @@ public class Asm {
 			}
 		}
 	}
-
-	public static String replaceExtension(String file, String newExt) {
-		int dot = file.lastIndexOf(".");
-		if (dot == -1) {
-			return file + "." + newExt;
-		}
-		return file.substring(0, dot) + "." + newExt;
-	}
-
 
 	public static void main(String[] args) throws IOException {
 		try (
