@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import compiler.Debug;
+
 public class Assembly {
 
 	
@@ -11,6 +13,8 @@ public class Assembly {
 
 	public static boolean IsAssembly(String s) {
 		Set<String> codes = new HashSet<String>(Arrays.asList(OpCodes));
+		//Debug.test("Testing assembly:"+s+" iscontained?"+codes.contains(s));
+		
 		return codes.contains(s);
 	}
 	

@@ -81,11 +81,12 @@ public class Parser {
 			Operation o = new Operation();
 			o.setType(OpType.ASSEMBLY);
 			o.setAssembly(line);
-			
+			f.addOperation(o);
 		} else {
 			Operation o = new Operation();
 			o.setType(OpType.FUNCTION_CALL);
 			o.setExpression(Expression.GetExpression(line));
+			f.addOperation(o);
 		}
 		return false;
 	}
