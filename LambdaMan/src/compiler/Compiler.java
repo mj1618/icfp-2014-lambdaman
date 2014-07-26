@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.StringBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -57,7 +58,7 @@ public class Compiler {
 			if(Utils.IsInteger(e.getValue())){
 				asm.add("LDC "+e.getValue());
 			} else if (f.parameterIndex(e.getValue())>=0) {
-				asm.add("LD 0 "+f.parameterIndex(e.getValue()));
+				asm.add("LD 0 "+f.parameterIndex(e.getValue()) + "   ; " + e.getValue());
 			} else {
 				asm.add("LDF "+e.getValue());
 			}
@@ -75,7 +76,7 @@ public class Compiler {
 				}
 				asm.add("LDF "+e.getValue());
 
-				asm.add("AP "+nargs);
+				asm.add("AP "+nargs + "     ; " + e.toString());
 			}
 		}
 		return asm;
@@ -92,14 +93,15 @@ public class Compiler {
 	}
 	
 	public String compiledToString(){
-		String s ="";
+		StringBuilder s = new StringBuilder();
 		for(Function f: functions.values()){
-			s+=f.getName()+":"+"\n";
+			s.append(String.format("%-10s ; %s\n", f.getName() + ":", f.getSignature()));
 			for(String asm:f.getAssembly()){
-				s+=asm+"\n";
+				s.append("  ").append(asm).append("\n");
 			}
+			s.append("\n");
 		}
-		return s;
+		return s.toString();
 	}
 	
 	public void assemble(){
@@ -129,9 +131,6 @@ public class Compiler {
 		File f = (args.length > 0) ? new File(args[0]) : new File(new File("hlscripts"), "parsetest.hla");
 		Compiler c = Compiler.Instance(f);
 		c.compile();
-		//c.printCompiled();
-		
-		c.assemble();
-		c.printMachineCode();
+		c.printCompiled();
 	}
 }
