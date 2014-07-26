@@ -24,6 +24,7 @@ public class AsmDoc {
 		String label;
 		Instruction ins;
 		Pair<String, Integer> constant;
+		String comment;
 
 		static ParseResult label(String label) {
 			ParseResult pr = new ParseResult();
@@ -56,8 +57,14 @@ public class AsmDoc {
 			for (String field : fields) {
 				if (field.length() == 0)
 					continue;
-				if (field.charAt(0) == ';')
-					return result; // ; marks start of comment, skip rest of line
+				if (result.comment != null) {
+					result.comment += " " + field;
+					continue;
+				}
+				if (field.charAt(0) == ';') {
+					result.comment = field; // ; marks start of comment
+					continue;
+				}
 				if (result.ins == null) {
 					if (field.endsWith(":")) {
 						/* this is a label not an instruction */
@@ -92,12 +99,20 @@ public class AsmDoc {
 			}
 			if (result.ins != null) {
 				result.ins.checkArgs();
+				if (result.comment != null) {
+					result.ins.comment = result.comment;
+				}
 				instructions.add(result.ins);
 				if (curLabel != null) {
 					if (labels.containsKey(curLabel)) {
 						throw new AsmException(lineNum, "duplicate label " + curLabel);
 					}
 					labels.put(curLabel, instructions.size() - 1);
+					if (result.ins.comment == null) {
+						result.ins.comment = "; " + curLabel + ":";
+					} else {
+						result.ins.comment = result.ins.comment.replaceFirst("; ", "; " + curLabel + ": ");
+					}
 					curLabel = null;
 				}
 			}

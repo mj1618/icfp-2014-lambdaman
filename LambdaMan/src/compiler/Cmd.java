@@ -3,6 +3,7 @@ package compiler;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 import asm.AsmDoc;
 import compiler.Compiler;
@@ -21,6 +22,8 @@ public class Cmd {
 		Compiler c = Compiler.Instance(new File(args[0]));
 		c.compile();
 		AsmDoc asm = new AsmDoc(c.functions);
-		asm.writeTo(new OutputStreamWriter(System.out));
+		try (Writer writer = new OutputStreamWriter(System.out)) {
+			asm.writeTo(writer);
+		}
 	}
 }

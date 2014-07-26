@@ -34,6 +34,7 @@ public class Asm {
 	static class Instruction {
 		final String origin; /* for error reporting */
 		final String name;
+		String comment = null; /* when set, includes leading ; character */
 		public final List<String> args = new ArrayList<>();
 		private final InstructionDef def;
 
@@ -73,6 +74,12 @@ public class Asm {
 					}
 					sb.append(" ").append(val);
 				}
+			}
+			if (comment != null) {
+				while (sb.length() < 10) {
+					sb.append(' ');
+				}
+				sb.append(comment);
 			}
 			return sb.toString().trim();
 		}
