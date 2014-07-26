@@ -126,7 +126,7 @@ public class Compiler {
 	}
 	
 	public static void main(String args[]){
-		File f = (args.length > 1) ? new File(args[0]) : new File(new File("hlscripts"), "parsetest.hla");
+		File f = (args.length > 0) ? new File(args[0]) : new File(new File("hlscripts"), "parsetest.hla");
 		Compiler c = Compiler.Instance(f);
 		c.compile();
 		//c.printCompiled();
