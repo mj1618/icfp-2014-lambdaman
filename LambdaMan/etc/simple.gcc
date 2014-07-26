@@ -1,0 +1,53 @@
+main:
+  LDC  0    ; keeping no state yet
+  LDF  step
+  CONS
+  RTN
+
+step:
+  LDC  0    ; pre-load empty AI state onto stack
+  LD   0 1
+  !{World Lambda Location}
+
+  !{func neighbours 1}
+  LDF  curried_cell
+  !{func map 2}
+  DBUG
+  LDC  dLeft
+
+  CONS
+  RTN
+
+neighbours:
+  ; expects ($x $y) coordinate pair as arg
+  ; pushes list of neighbouring coordinates: (UP RIGHT DOWN LEFT)
+  LD   0 0
+  !{func up 1}
+  LD   0 0
+  !{func right 1}
+  LD   0 0
+  !{func down 1}
+  LD   0 0
+  !{func left 1}
+  LDC  0
+  CONS
+  CONS
+  CONS
+  CONS
+  RTN
+  
+curried_cell:
+  ; gets called by map with just a coordinate. references the
+  ; parent environment to get the game map.
+  LD 0 0
+  DBUG
+  LD 1 1
+  !{World Map}
+  LD 0 0
+  LDF cell
+  TAP 2
+
+!{include list.gcc}
+!{include game.gcc}
+!{include map.gcc}
+

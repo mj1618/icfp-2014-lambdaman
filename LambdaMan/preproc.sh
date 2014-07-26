@@ -6,7 +6,7 @@ eval "$(awk -v Q="'" '
 /!{.*}/ {
 	sub(".*!{", "")
 	sub("}.*", "")
-	print
+	print "{ " $0 "; } || exit 1"
 	next
 }
 
