@@ -47,25 +47,27 @@ public class Asm {
 			if (args.size() != def.args.length) {
 				throw new AsmException(lineNum, "instruction " + name + ": expected " + def.args.length + " arguments but got " + args.size());
 			}
-			for (int i = 0; i < def.args.length; i++) {
-				if (!isLiteralInt(args.get(i)) && def.args[i] != InstructionDef.Arg.ADDR) {
-					throw new AsmException(lineNum, "can't use label " + args.get(i) + " where " + name + " expects literal int");
-				}
-			}
 		}
 
-		public String toString(Map<String, Integer> labels) {
+		public String toString(Map<String, Integer> labels, Map<String, Integer> constants) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(String.format("%-5s", name));
-			for (String arg : args) {
+			for (int i = 0; i < args.size(); i++) {
+				String arg = args.get(i);
 				if (isLiteralInt(arg)) {
 					sb.append(" ").append(arg);
-				} else {
+				} else if (def.args[i] == InstructionDef.Arg.ADDR) {
 					Integer addr = labels.get(arg);
 					if (addr == null) {
 						throw new AsmException(lineNum, "undefined label " + arg);
 					}
 					sb.append(" ").append(addr);
+				} else {
+					Integer val = constants.get(arg);
+					if (val == null) {
+						throw new AsmException(lineNum, "undefined constant " + arg);
+					}
+					sb.append(" ").append(val);
 				}
 			}
 			return sb.toString().trim();
@@ -75,6 +77,7 @@ public class Asm {
 	private static class AsmDoc {
 		final List<Instruction> instructions = new ArrayList<>();
 		final Map<String, Integer> labels = new HashMap<>();
+		final Map<String, Integer> constants = new HashMap<>();
 
 		/* parses the incoming data to generate a doc */
 		AsmDoc(Reader r) throws IOException {
@@ -84,8 +87,27 @@ public class Asm {
 			String curLabel = null;
 			while ((line = br.readLine()) != null) {
 				lineNum++;
-				String[] fields = line.split(" +");
 				Instruction ins = null;
+				String[] fields = line.split(" +");
+				if (fields.length == 0) {
+					continue;
+				}
+				if (fields[0].equals("$const")) {
+					if (curLabel != null) {
+						throw new AsmException(lineNum, line, "expected instruction to follow label");
+					}
+					if (fields.length < 3) {
+						throw new AsmException(lineNum, line, "constant definition must be on one line");
+					}
+					if (constants.containsKey(fields[1])) {
+						throw new AsmException(lineNum, line, "duplicate constant " + fields[1]);
+					}
+					if (!isLiteralInt(fields[2])) {
+						throw new AsmException(lineNum, line, "constant value must be literal int");
+					}
+					constants.put(fields[1], Integer.valueOf(fields[2]));
+					continue;
+				}
 				for (String field : fields) {
 					if (field.length() == 0)
 						continue;
@@ -109,6 +131,9 @@ public class Asm {
 					ins.checkArgs();
 					instructions.add(ins);
 					if (curLabel != null) {
+						if (labels.containsKey(curLabel)) {
+							throw new AsmException(lineNum, "duplicate label " + curLabel);
+						}
 						labels.put(curLabel, instructions.size() - 1);
 						curLabel = null;
 					}
@@ -118,7 +143,7 @@ public class Asm {
 
 		public void writeTo(Writer w) throws IOException {
 			for (Instruction ins : instructions) {
-				w.write(ins.toString(labels));
+				w.write(ins.toString(labels, constants));
 				w.write('\n');
 			}
 		}
