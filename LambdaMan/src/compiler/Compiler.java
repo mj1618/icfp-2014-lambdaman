@@ -63,12 +63,12 @@ public class Compiler {
 			}
 		} else {
 			if(functions.get(e.getValue())==null){
-				Debug.error("Error, "+e.getValue()+" is not a function but is being called as one");
+				Debug.error(e.lineNum + ": Error, "+e.getValue()+" is not a function but is being called as one");
 			} else {
 
 				int nargs = functions.get(e.getValue()).getParams().size();
 				if(nargs!=e.getChildren().size()){
-					Debug.error("Arguments and children mismatch in expression:"+e+" function:"+f.getName()+" args needed:"+nargs+" args got:"+e.getChildren().size());
+					Debug.error(e.lineNum + ": Arguments and children mismatch in expression:"+e+" function:"+f.getName()+" args needed:"+nargs+" args got:"+e.getChildren().size());
 				}
 				for(Expression exp:e.getChildren()){
 					asm.addAll(compileExpression(exp,f));

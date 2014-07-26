@@ -38,7 +38,6 @@ public class Parser {
 	public Parser(){}
 	
 	public void init(List<String> lines){
-		trimBlankLines(lines);
 		ListIterator<String> i = lines.listIterator();
 		while(i.hasNext()){
 			Function f = ReadFunctionDeclaration(i);
@@ -50,13 +49,15 @@ public class Parser {
 	private static void ParseLines(ListIterator<String> it, Function f) {
 		while(it.hasNext()){
 			String line = it.next().trim();
-			boolean end = ParseLine(line,f);
+			if (line.isEmpty())
+				continue;
+			boolean end = ParseLine(it.nextIndex(), line,f);
 			if(end)
 				return;
 		}
 	}
 	
-	private static boolean ParseLine(String line, Function f){
+	private static boolean ParseLine(int lineNum, String line, Function f){
 		String[] code = line.split(" ");
 		
 		if(code[0].equals("end")){
@@ -66,7 +67,7 @@ public class Parser {
 			Constant c = new Constant();
 			c.setName(code[1]);
 			String value = line.split("=")[1].substring(1);
-			Expression exp = Expression.GetExpression(value);
+			Expression exp = Expression.GetExpression(lineNum, value);
 			c.setExpression(exp);
 			f.addConstant(c);
 			
@@ -74,7 +75,7 @@ public class Parser {
 			Operation o = new Operation();
 			o.setType(OpType.RETURN);
 			String value = line.substring("return ".length());
-			o.setExpression(Expression.GetExpression(value));
+			o.setExpression(Expression.GetExpression(lineNum, value));
 			f.addOperation(o);
 			
 		} else if(Assembly.IsAssembly(code[0])){
@@ -85,7 +86,7 @@ public class Parser {
 		} else {
 			Operation o = new Operation();
 			o.setType(OpType.FUNCTION_CALL);
-			o.setExpression(Expression.GetExpression(line));
+			o.setExpression(Expression.GetExpression(lineNum, line));
 			f.addOperation(o);
 		}
 		return false;
@@ -139,34 +140,25 @@ public class Parser {
 		
 		while(it.hasNext()){
 			String line = it.next().trim();
+			if (line.isEmpty())
+				continue;
 			
 			if(line.startsWith("def")){
 				String[] decl = line.split(" ");
+				f.setLine(it.nextIndex());
 				f.setName(decl[1]);
 				for(int i = 2; i<decl.length; i++){
 					f.addParam(decl[i]);
 				}
 				break;
 			} else {
-				System.err.println("error on line, expecting a function:"+line);
+				System.err.println(it.nextIndex() + ": error on line, expecting a function:"+line);
 			}
 		}
 		
 		return f;
 	}
 
-	
-	private void trimBlankLines(List<String> lines) {
-		ListIterator<String> i = lines.listIterator();
-		while(i.hasNext()){
-			String line = i.next();
-			if(line.trim().isEmpty()){
-				i.remove();
-			}
-		}
-	}
-	
-	
 	public static Parser Instance(File file){
 		try {
 			return Instance(Files.readAllLines(Paths.get(file.getPath()), Charset.defaultCharset()));
