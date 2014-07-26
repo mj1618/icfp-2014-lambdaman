@@ -126,22 +126,22 @@ public class Compiler {
 	}
 	
 	public String compiledToString(){
-		String s ="";
+		StringBuilder s = new StringBuilder();
 		
 		Function main = functions.get("Main");
-		s+=main.getName()+":"+"\n";
+		s.append(String.format("%-10s ; %s\n", main.getName() + ":", main.getSignature()));
 		for(String asm:main.getAssembly()){
-			s+=asm+"\n";
+			s.append("  ").append(asm).append("\n");
 		}
 		
 		for(Function f: functions.values()){
 			if(f.getName().equals("Main"))continue;
-			s+=f.getName()+":"+"\n";
+			s.append(String.format("%-10s ; %s\n", f.getName() + ":", f.getSignature()));
 			for(String asm:f.getAssembly()){
-				s+=asm+"\n";
+				s.append("  ").append(asm).append("\n");
 			}
 		}
-		return s;
+		return s.toString();
 	}
 	
 	public void assemble(){
