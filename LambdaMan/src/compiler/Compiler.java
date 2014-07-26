@@ -68,8 +68,7 @@ public class Compiler {
 				}
 				asm.add("LDF "+e.getValue());
 
-				asm.add("DUM "+nargs);
-				asm.add("RAP "+nargs);
+				asm.add("AP "+nargs);
 			}
 		}
 		return asm;
