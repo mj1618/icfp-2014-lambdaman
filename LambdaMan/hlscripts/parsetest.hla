@@ -1,0 +1,16 @@
+def Main state other
+	let board = list state 0
+	let pos = list state 2
+	let posleft = pair (first pos) (inc (second pos))
+	if element board posleft = pill
+return MoveLeft
+end
+def element board (x, y)
+	return list (list board x) y
+end
+def list l x
+	ifzero x
+	return first l
+	else
+	return list (second l) (sub x)
+end
