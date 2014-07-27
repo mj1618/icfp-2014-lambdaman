@@ -17,22 +17,22 @@ def step aistate worldstate
 	let pos = head (tail (head (tail worldstate)))
 	let old = aistate
 	
-	if equal (map board (left pos)) 2
+	if equal (map-cell board (left pos)) 2
 		return pair 3 3
-	elseif equal (map board (right pos)) 2
+	elseif equal (map-cell board (right pos)) 2
 		return pair 1 1
-	elseif equal (map board (down pos)) 2
+	elseif equal (map-cell board (down pos)) 2
 		return pair 2 2
-	elseif equal (map board (up pos)) 2
+	elseif equal (map-cell board (up pos)) 2
 		return pair 0 0
 	else
-		if and (notequal old 1) (notequal (map board (left pos)) 0)
+		if and (notequal old 1) (notequal (map-cell board (left pos)) 0)
 			return pair 3 3
-		elseif and (notequal old 3) (notequal (map board (right pos)) 0)
+		elseif and (notequal old 3) (notequal (map-cell board (right pos)) 0)
 			return pair 1 1
-		elseif and (notequal old 0) (notequal (map board (down pos)) 0)
+		elseif and (notequal old 0) (notequal (map-cell board (down pos)) 0)
 			return pair 2 2
-		elseif and (notequal old 2) (notequal (map board (up pos)) 0)
+		elseif and (notequal old 2) (notequal (map-cell board (up pos)) 0)
 			return pair 0 0
 		else
 			return pair 0 0

@@ -1,4 +1,4 @@
-def map m x
+def map-cell m x
   ; expects MAP and ($x $y) coordinate as args
   ; returns the entry in the map at position ($x $y)
   LD   0 0

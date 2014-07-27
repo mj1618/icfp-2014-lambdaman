@@ -90,6 +90,9 @@ public class Parser {
 			
 			Function f = readFunctionDeclaration(it);
 			parseLines(it,f);
+			if (functions.get(f.getName()) != null) {
+				throw new RuntimeException("line " + it.nextIndex() + ": duplicate function '" + f.getName() + "'");
+			}
 			functions.put(f.getName(),f);
 		}
 	}
