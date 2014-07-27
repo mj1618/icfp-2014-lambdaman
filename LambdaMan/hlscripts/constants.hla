@@ -6,6 +6,43 @@ def world.Lambda state
 	return head (tail state)
 end
 
+def world.Ghost state
+	return head (tail (tail state))
+end
+
+def world.Fruit state
+	return tail (tail (tail state))
+end
+
 def lambda.Location lstate
 	return head (tail lstate)
+end
+
+; cell values
+def cWall
+	LDC 0
+end
+
+def cEmpty
+	LDC 1
+end
+
+def cPill
+	LDC 2
+end
+
+def cPowerPill
+	LDC 3
+end
+
+def cFruit
+	LDC 4
+end
+
+def cLambda
+	LDC 5
+end
+
+def cGhost
+	LDC 6
 end

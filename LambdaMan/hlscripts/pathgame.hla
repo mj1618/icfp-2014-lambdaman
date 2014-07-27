@@ -5,23 +5,178 @@ import list.hla
 import constants.hla
 
 def Main state ghost
-	let board = world.Map state
-	let loc = right (lambda.Location (world.Lambda state))
+	DUM 1   ; dummy frame to hold state for AI_turn
+	LDC 0
+	LDF AI_init
+	RAP 1
+	LDC 0
+	LDF AI_turn
+	CONS
+	LDF step
+	CONS
+end
 
-	debug (lambda.Location (world.Lambda state))
-	debug (path-in-dir board loc 0)
-	debug (anchor (path-in-dir board loc 0) loc)
-	debug (path-in-dir board loc 1)
-	debug (anchor (path-in-dir board loc 1) loc)
-	debug (path-in-dir board loc 2)
-	debug (anchor (path-in-dir board loc 2) loc)
-	debug (path-in-dir board loc 3)
-	debug (anchor (path-in-dir board loc 3) loc)
+def AI_init bool
+	LD 0 0
+	ST 1 0
+end
 
-	return pair 0 debug
+; AI_turn toggles between turning left or turning right
+; each time it is called
+def AI_turn loc
+	LDC  1
+	LD   1 0
+	SUB
+	ST   1 0
+	LD   1 0
+	TSEL AI_turn-left AI_turn-right
+end
+
+def AI_turn-left loc
+	LD   0 0
+	LDF turn-left
+	AP 1
+end
+
+def AI_turn-right loc
+	LD   0 0
+	LDF turn-right
+	AP 1
+end
+
+def mkAI dir turn-fn
+	return pair dir turn-fn
+end
+
+def AI.facing ai
+	return head ai
+end
+
+def AI.turn-fn ai
+	return tail ai
 end
 
 def debug x
 	LD 0 0
 	DBUG
+end
+
+def cell-value world loc
+	; TODO account for ghost positions & lambda vitality
+	let cell = map-cell (world.Map world) loc
+	if equal cell (cFruit)
+		if zero? (world.Fruit world)
+			return 0  ; fruit not active
+		else
+			return 250  ; TODO pre-calculate fruit score
+		endif
+	elseif equal cell (cPowerPill)
+		return 50
+	elseif equal cell (cPill)
+		return 10
+	else
+		return 0
+	endif
+end
+
+def score world relpath
+	let loc = lambda.Location (world.Lambda world)
+	return reduce (map (anchor relpath loc) ^value) sum2
+end
+
+; using ^ as a convention to mark functions that access
+; variables from parent environment frames
+def ^value loc
+	LD 1 0   ; load world state from parent frame
+	LD 0 0
+	LDF cell-value
+	AP 2
+end
+
+; returns path worth most points
+def ^best-score path1 path2
+	LD 1 0   ; world state
+	LD 0 0
+	LDF score
+	AP 2
+
+	LD 1 0   ; world state
+	LD 0 1
+	LDF score
+	AP 2
+
+	CGT
+	TSEL ^best-score_1 ^best-score_2
+end
+
+def ^best-score_1
+	LD 0 0
+end
+
+def ^best-score_2
+	LD 0 1
+end
+
+def step ai world
+	let newdir = decide-dir world ai (find-best-path world)
+	return step-result ai newdir
+end
+
+def step-result oldai dir
+	return pair (mkAI dir (AI.turn-fn oldai)) dir
+end
+
+def find-best-path world
+	let board = world.Map world
+	let loc = lambda.Location (world.Lambda world)
+	let north = path-in-dir board loc 0
+	let east = path-in-dir board loc 1
+	let south = path-in-dir board loc 2
+	let west = path-in-dir board loc 3
+	let paths = pair north (pair east (pair south (pair west 0)))
+	let best = reduce paths ^best-score
+	return best-result world best
+end
+
+def best-result world best-path
+	return pair best-path (score world best-path)
+end
+
+def decide-dir world ai best
+	if zero? (tail best)
+		; best score was zero, use different criteria
+		let board = world.Map world
+		let loc = lambda.Location (world.Lambda world)
+		let ahead = advance loc (AI.facing ai)
+		if wall? (map-cell board ahead)
+			return decide-turn world (AI.facing ai) (ai-turn ai)
+		else
+			return AI.facing ai ; keep on keeping on
+		endif
+	else
+		return head (head best)
+	endif
+end
+
+def ai-turn ai
+	LD 0 0   ; AI state
+	CAR      ; facing
+
+    LD 0 0
+	CDR      ; turn function
+	AP 1
+end
+
+def decide-turn world facing ai-choice
+	let board = world.Map world
+	let loc = lambda.Location (world.Lambda world)
+	if wall? (map-cell board (advance loc ai-choice))
+		if wall? (map-cell board (advance loc (reverse ai-choice)))
+			return reverse facing
+		else
+			return reverse ai-choice
+		endif
+	else
+		return ai-choice
+	endif
 end
