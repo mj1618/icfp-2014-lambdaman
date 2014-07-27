@@ -1,0 +1,27 @@
+import path.hla
+import utils.hla
+import map.hla
+import list.hla
+import constants.hla
+
+def Main state ghost
+	let board = world.Map state
+	let loc = right (lambda.Location (world.Lambda state))
+
+	debug (lambda.Location (world.Lambda state))
+	debug (path-in-dir board loc 0)
+	debug (anchor (path-in-dir board loc 0) loc)
+	debug (path-in-dir board loc 1)
+	debug (anchor (path-in-dir board loc 1) loc)
+	debug (path-in-dir board loc 2)
+	debug (anchor (path-in-dir board loc 2) loc)
+	debug (path-in-dir board loc 3)
+	debug (anchor (path-in-dir board loc 3) loc)
+
+	return pair 0 debug
+end
+
+def debug x
+	LD 0 0
+	DBUG
+end

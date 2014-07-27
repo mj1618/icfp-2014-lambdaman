@@ -1,0 +1,20 @@
+import utils.hla 
+import path.hla
+import map.hla
+import list.hla
+
+def Main state ghost
+	let path = pair 0 (pair 1 (pair 0 0)) ; up right up
+	let loc = pair 5 15
+	brk
+	debug (anchor path loc)
+end
+
+def brk
+	BRK
+end
+
+def debug x
+	LD   0 0
+	DBUG
+end

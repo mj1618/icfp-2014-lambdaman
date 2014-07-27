@@ -61,3 +61,56 @@ def down p
   CONS
   RTN
 end
+
+def advance loc dir
+	; moves one step in 'dir' starting from 'loc' and returns the new position
+	; seriously why do we not have constants??
+	if equal dir 0
+		return up loc
+	elseif equal dir 1
+		return right loc
+	elseif equal dir 2
+		return down loc
+	else
+		return left loc
+	endif
+end
+
+def reverse dir
+	; returns the opposite direction to 'dir'
+	if equal dir 0
+		return 2
+	elseif equal dir 1
+		return 3
+	elseif equal dir 2
+		return 0
+	else
+		return 1
+	endif
+end
+
+def neighbours loc
+	; returns a list of locations up, right, down, and left from loc
+	return pair (up loc) (pair (right loc) (pair (down loc) (pair (left loc) 0)))
+end
+
+def wall? cell
+	return equal cell 0
+end
+
+def turn-left dir
+	if equal dir 0
+		return 3
+	else
+		return dec dir
+	endif
+end
+
+def turn-right dir
+	if equal dir 3
+		return 0
+	else
+		return inc dir
+	endif
+end
+

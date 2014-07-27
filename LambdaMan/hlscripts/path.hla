@@ -1,0 +1,72 @@
+; depends on utils.lha
+
+; Paths come in two flavours: absolute and relative
+; A relative path is just a list of directions
+; An absolute path is a list of coordinates (ie. a relative path anchored at a starting location)
+
+def anchor relpath loc
+	if atom? relpath
+		return 0     ; end of list
+	else
+		let nextloc = advance loc (head relpath)
+		return pair nextloc (anchor (tail relpath) nextloc)
+	endif
+end
+
+def endpoint? board loc
+	; a path segment ends at a junction or dead-end
+	let cells = map (neighbours loc) ^map-cell
+	let nwalls = reduce (map cells wall?) sum2
+	if equal nwalls 2
+		return 0
+	else
+		return 1
+	endif
+end
+
+; unfortunately this is simpler than trying to teach the compiler about closures
+def ^map-cell loc
+	; calls map-cell with the provided loc, and obtains board from parent environment
+	LD 1 0  ; game board (from endpoint?'s arglist)
+	LD 0 0
+	LDF map-cell
+	AP 2
+end
+
+def path-in-dir board loc dir
+	; follows the corridor in direction 'dir' until the next fork or dead-end
+	let next = advance loc dir
+	if wall? (map-cell board next)
+		return 0
+	else
+		return path-in-dir_r board next dir
+	endif
+end
+
+; recursion entry point
+def path-in-dir_r board loc dir
+	; 'dir' is the direction we came to get to loc
+	if endpoint? board loc
+		return pair dir 0
+	else
+		let newdir = corridor-step board loc dir
+		return pair dir (path-in-dir_r board (advance loc newdir) newdir)
+	endif
+end
+
+def corridor-step board loc dir
+	; 'dir' is the direction we came to get to loc
+	; 'loc' must have exactly 2 adjacent spaces (ie. (endpoint? loc) is false)
+	; returns the direction to go to follow the corridor
+	if wall? (map-cell board (advance loc dir))
+		; hit a wall if we keep going the same way; need to turn
+		if wall? (map-cell board (advance loc (turn-left dir)))
+			; left is a wall, must be right
+			return turn-right dir
+		else
+			return turn-left dir
+		endif
+	else
+		return dir
+	endif
+end

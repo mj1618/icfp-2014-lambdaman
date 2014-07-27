@@ -94,4 +94,15 @@ def inc x
 	LDC 1
 	LD 0 0
 	ADD
-end 
+end
+
+def atom? x
+	LD 0 0
+	ATOM
+end
+
+def sum2 a b
+	LD 0 0
+	LD 0 1
+	ADD
+end

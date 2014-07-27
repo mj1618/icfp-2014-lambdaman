@@ -1,0 +1,11 @@
+def world.Map state
+	return head state
+end
+
+def world.Lambda state
+	return head (tail state)
+end
+
+def lambda.Location lstate
+	return head (tail lstate)
+end
