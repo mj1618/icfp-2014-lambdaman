@@ -47,7 +47,7 @@ public class Parser {
 		
 		for(int i = 0; i<lines.size()&&lines.get(i).startsWith("import"); i++){
 			String line = lines.get(i);
-			List<String> newImports = readImport(line.split(" ")[1]);
+			List<String> newImports = readImport(line.split(" +")[1]);
 			imports.addAll(newImports);
 			imports.addAll(importLines(newImports));
 		}
@@ -112,7 +112,7 @@ public class Parser {
 	}
 	
 	private boolean parseLine(int lineNum, String line, Function f, ListIterator<String> it,String original){
-		String[] code = line.split(" ");
+		String[] code = line.split(" +");
 		
 		if(code[0].equals("end") || code[0].equals("else") || code[0].equals("endif")){
 			return true;
@@ -289,7 +289,7 @@ public class Parser {
 				continue;
 			
 			if(line.startsWith("def")){
-				String[] decl = line.split(" ");
+				String[] decl = line.split(" +");
 				f.setLine(it.nextIndex());
 				f.setName(decl[1]);
 				for(int i = 2; i<decl.length; i++){

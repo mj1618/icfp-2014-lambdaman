@@ -53,7 +53,7 @@ public class Expression {
 		}
 		
 		if(!hasChildren)return n;
-		i++;
+		while(value.charAt(i) == ' ') i++;
 		for(; i<value.length(); i++){
 			n.children.add(from(lineNum, value));
 			if(i<value.length() && value.charAt(i)==')'){
