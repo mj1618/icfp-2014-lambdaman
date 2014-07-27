@@ -10,20 +10,40 @@ import compiler.types.OpType;
 
 public class Function {
 
-	boolean isIfElse = false;
 	int line;
 	String name;
 	List<Parameter> params = new ArrayList<Parameter>();
 	List<Operation> operations = new ArrayList<Operation>();
 	Map<String, Constant> constants = new HashMap<String,Constant>();
 	List<String> assembly = new ArrayList<String>();
+	boolean isIf=false,isElse=false,isElseIf=false;
 	
-	public boolean isIfElse() {
-		return isIfElse;
+	public boolean isCondition(){
+		return isIf||isElse||isElseIf;
+	}
+	
+	public boolean isIf() {
+		return isIf;
 	}
 
-	public void setIfElse(boolean isIfElse) {
-		this.isIfElse = isIfElse;
+	public void setIf(boolean isIf) {
+		this.isIf = isIf;
+	}
+
+	public boolean isElse() {
+		return isElse;
+	}
+
+	public void setElse(boolean isElse) {
+		this.isElse = isElse;
+	}
+
+	public boolean isElseIf() {
+		return isElseIf;
+	}
+
+	public void setElseIf(boolean isElseIf) {
+		this.isElseIf = isElseIf;
 	}
 
 	public List<String> getAssembly() {

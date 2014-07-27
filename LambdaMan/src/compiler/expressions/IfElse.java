@@ -1,26 +1,34 @@
 package compiler.expressions;
 
+import java.util.List;
+
 public class IfElse {
 
-	String ifFunction;
-	String elseFunction;
+	Condition ifcond;
+	Condition elsecond;
 	
-	public IfElse(String ifFunction, String elseFunction) {
+	public IfElse(Condition ifFunction,Condition elseFunction
+			) {
 		super();
-		this.ifFunction = ifFunction;
-		this.elseFunction = elseFunction;
+		this.ifcond = ifFunction;
+		this.elsecond=elseFunction;
 	}
-	public String getIfFunction() {
-		return ifFunction;
+
+	public Condition getIfcond() {
+		return ifcond;
 	}
-	public void setIfFunction(String ifFunction) {
-		this.ifFunction = ifFunction;
+
+	public void setIfcond(Condition ifcond) {
+		this.ifcond = ifcond;
 	}
-	public String getElseFunction() {
-		return elseFunction;
+
+	public Condition getElsecond() {
+		return elsecond;
 	}
-	public void setElseFunction(String elseFunction) {
-		this.elseFunction = elseFunction;
+
+	public void setElsecond(Condition elsecond) {
+		this.elsecond = elsecond;
 	}
+
 	
 }

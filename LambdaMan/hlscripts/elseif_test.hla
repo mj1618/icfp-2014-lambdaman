@@ -1,0 +1,11 @@
+def Main
+	if 0
+		return 1
+	elseif 1
+		return 2
+	elseif 2
+		return 3
+	else
+		return 4
+	endif
+end

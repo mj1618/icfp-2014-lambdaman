@@ -1,5 +1,8 @@
 package compiler.components;
 
+import java.util.List;
+
+import compiler.expressions.Condition;
 import compiler.expressions.Expression;
 import compiler.expressions.IfElse;
 import compiler.types.OpType;
@@ -19,7 +22,10 @@ public class Operation {
 	}
 
 	public Expression getExpression() {
-		return expression;
+		if(type==OpType.CONDITION)
+			return ifElse.getIfcond().getExp();
+		else
+			return expression;
 	}
 
 	public void setExpression(Expression expression) {
@@ -33,9 +39,8 @@ public class Operation {
 	public void setAssembly(String assembly) {
 		this.assembly = assembly;
 	}
-
-	public void setIfElse(Expression condition, String ifFunc, String elseFunc) {
-		this.expression=condition;
+	public void setIfElse(Condition ifFunc, Condition elseFunc) {
+		
 		this.ifElse=new IfElse(ifFunc,elseFunc);
 		
 	}

@@ -47,18 +47,18 @@ public class Compiler {
 				break;
 			case RETURN:
 				asm.addAll(compileExpression(o.getExpression(),f));
-				if(f.isIfElse())asm.add("JOIN");
+				if(f.isCondition())asm.add("JOIN");
 				else asm.add("RTN");
 				break;
 			case FUNCTION_CALL:
 				asm.addAll(compileExpression(o.getExpression(),f));
 				break;
-			case IF:
-				asm.addAll(compileExpression(o.getExpression(),f));
-				asm.add("SEL "+o.getIfElse().getIfFunction()+" "+o.getIfElse().getElseFunction());				
+			case CONDITION:
+				asm.addAll(compileExpression(o.getIfElse().getIfcond().getExp(),f));
+				asm.add("SEL "+o.getIfElse().getIfcond().getF()+" "+o.getIfElse().getElsecond().getF());				
 			}
 		}
-		if(f.isIfElse())asm.add("JOIN");
+		if(f.isCondition())asm.add("JOIN");
 		else asm.add("RTN");
 		f.setAssembly(asm);
 	}
@@ -168,7 +168,7 @@ public class Compiler {
 	}
 	
 	public static void main(String args[]){
-		File f = (args.length > 1) ? new File(args[0]) : new File(new File("hlscripts"), "game_test.hla");
+		File f = (args.length > 1) ? new File(args[0]) : new File(new File("hlscripts"), "game_test2.hla");
 		Compiler c;
 		try {
 			c = Compiler.Instance(f);

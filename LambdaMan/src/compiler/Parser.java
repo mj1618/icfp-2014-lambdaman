@@ -20,8 +20,10 @@ import java.util.Map;
 import compiler.components.Constant;
 import compiler.components.Function;
 import compiler.components.Operation;
+import compiler.expressions.Condition;
 import compiler.expressions.Expression;
 import compiler.types.Assembly;
+import compiler.types.ConditionType;
 import compiler.types.OpType;
 
 public class Parser {
@@ -137,16 +139,10 @@ public class Parser {
 			f.addOperation(o);
 			
 		}  else if(code[0].equals("if")){
-			Operation o = new Operation();
-			o.setType(OpType.IF);
 			Expression condition= Expression.GetExpression(lineNum,line.substring("if ".length()));
-			String ifFunc = createIfFunction(it,f);
-			
-			String elseFunc = createElseFunction(it,f);
-			
-			o.setIfElse(condition, ifFunc, elseFunc);
-			f.addOperation(o);
-			
+			parseIf(lineNum,it,condition,f);
+		} else if(code[0].equals("elseif")){
+			return true;
 		} else {
 			Operation o = new Operation();
 			o.setType(OpType.FUNCTION_CALL);
@@ -156,25 +152,87 @@ public class Parser {
 		return false;
 	}
 
+	public void parseIf(int lineNum, ListIterator<String> it, Expression exp, Function f){
+		Operation o = new Operation();
+		o.setType(OpType.CONDITION);
+		Condition ifFunc = new Condition(ConditionType.IF, exp, createIfFunction(it,exp,f));
+		
+		String prev = it.previous().trim();
+		it.next();
+		if(prev.startsWith("elseif")){
+			Expression e = Expression.GetExpression(lineNum, prev.substring("elseif ".length()));
+			Condition elseFunc = new Condition(ConditionType.ELSE, createElseIfFunction(it, e, f, 1));
+			o.setIfElse(ifFunc, elseFunc);
+			f.addOperation(o);
+		} else {
+			Condition elseFunc = new Condition(ConditionType.ELSE, createElseFunction(it,f));
+			o.setIfElse(ifFunc, elseFunc);
+			f.addOperation(o);
+		}
+	}
+	
 	private String createElseFunction(ListIterator<String> it,
 			Function parent) {
 		Function f = new Function();
 		f.addAllConstants(parent.getConstants());
 		f.addAllParams(parent.getParams());
 		f.setName(parent.getName()+"Else");
-		f.setIfElse(true);
+		f.setElse(true);
 		parseLines(it,f);
 		functions.put(f.getName(), f);
 		return f.getName();
 	}
 
-	private String createIfFunction(ListIterator<String> it, Function parent) {
+	private String createIfFunction(ListIterator<String> it, Expression exp,Function parent) {
 		Function f = new Function();
 		f.addAllConstants(parent.getConstants());
 		f.addAllParams(parent.getParams());
 		f.setName(parent.getName()+"If");
-		f.setIfElse(true);
+		f.setIf(true);
 		parseLines(it,f);
+		functions.put(f.getName(), f);
+		return f.getName();
+	}
+
+
+	private String parseElseIfFunction(ListIterator<String> it, Expression exp,Function parent, int n) {
+		Function f = new Function();
+		f.addAllConstants(parent.getConstants());
+		f.addAllParams(parent.getParams());
+		f.setName(parent.getName()+n);
+		f.setIf(true);
+		parseLines(it,f);
+		functions.put(f.getName(), f);
+		return f.getName();
+	}
+	private void parseElseIf(int lineNum, ListIterator<String> it, Expression exp, Function f, int n){
+		Operation o = new Operation();
+		o.setType(OpType.CONDITION);
+		Condition ifFunc = new Condition(ConditionType.IF, exp, parseElseIfFunction(it,exp,f,n));
+		
+		String prev = it.previous().trim();
+		it.next();
+		if(prev.startsWith("elseif")){
+			Expression e = Expression.GetExpression(lineNum, prev.substring("elseif ".length()));
+			Condition elseFunc = new Condition(ConditionType.ELSE, createElseIfFunction(it, e, f, n+1));
+			o.setIfElse(ifFunc, elseFunc);
+			f.addOperation(o);
+		} else  {
+
+			Condition elseFunc = new Condition(ConditionType.ELSE, createElseFunction(it,f));
+			o.setIfElse(ifFunc, elseFunc);
+			f.addOperation(o);
+		}	
+		
+	}
+	
+	private String createElseIfFunction(ListIterator<String> it, Expression exp,Function parent, int n) {
+		Function f = new Function();
+		f.addAllConstants(parent.getConstants());
+		f.addAllParams(parent.getParams());
+		f.setName(parent.getName()+"ElseIf"+n);
+		f.setElseIf(true);
+		parseElseIf(it.nextIndex(),it,exp,f, n);
 		functions.put(f.getName(), f);
 		return f.getName();
 	}
@@ -279,7 +337,7 @@ public class Parser {
 	}
 	
 	public static void main(String args[]){
-		Parser c = Parser.Instance(new File("hlscripts\\parsetest.hla"));
+		Parser c = Parser.Instance(new File("hlscripts\\elseif_test.hla"));
 		c.preprocess();
 		c.print();
 	}
