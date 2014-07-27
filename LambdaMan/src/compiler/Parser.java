@@ -51,6 +51,7 @@ public class Parser {
 			imports.addAll(newImports);
 			imports.addAll(importLines(newImports));
 		}
+		stripComments(imports);
 		return imports;
 	}
 	private List<String> readImport(String s) throws IOException {
@@ -67,6 +68,7 @@ public class Parser {
 	}
 
 	public void init(List<String> lines){
+		stripComments(lines);
 		//trimBlankLines(lines);
 		
 		//read imports
@@ -331,6 +333,15 @@ public class Parser {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	private static void stripComments(List<String> lines) {
+		for(int i = 0; i < lines.size(); i++) {
+			String line = lines.get(i);
+			if (line.contains(";")) {
+				lines.set(i, line.replaceFirst(";.*", ""));
+			}
 		}
 	}
 	
