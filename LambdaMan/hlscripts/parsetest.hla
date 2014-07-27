@@ -3,8 +3,8 @@ def Main
 	
 	let board = pair (pair 1 (pair 2 3)) (pair 4 (pair 5 6))
 	let pos = pair 0 0
-	let posleft = pair (first pos) (inc (second pos))
-	if equal (element board (first posleft) (second posleft)) (pill)
+	let posleft = pair (head pos) (inc (tail pos))
+	if equal (element board (head posleft) (tail posleft)) (pill)
 		return 3
 	else
 		return 4

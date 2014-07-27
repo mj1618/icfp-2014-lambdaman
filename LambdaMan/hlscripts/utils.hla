@@ -1,4 +1,25 @@
-
+def or a b
+	if a
+		return 1
+	else
+		if b
+			return 1
+		else
+			return 0
+		endif
+	endif	
+end
+def and a b
+	if a
+		if b
+			return 1
+		else
+			return 0
+		endif
+	else
+		return 0
+	endif	
+end
 def pair x y
 	LD 0 0
 	LD 0 1
@@ -25,9 +46,9 @@ end
 
 def list_get l x
 	if zero x
-	   return first l 
+	   return head l 
 	else
-	   return list_get (second l) (dec x)
+	   return list_get (tail l) (dec x)
 	endif
 end
 
@@ -37,12 +58,12 @@ def zero x
 	CEQ
 end
 
-def first l
+def head l
 	LD 0 0
 	CAR
 end
 
-def second l
+def tail l
 	LD 0 0
 	CDR
 end
