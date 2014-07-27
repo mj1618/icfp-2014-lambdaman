@@ -85,8 +85,8 @@ def tail l
 end
 
 def dec x
-	LDC 1
 	LD 0 0
+	LDC 1
 	SUB
 end
 
