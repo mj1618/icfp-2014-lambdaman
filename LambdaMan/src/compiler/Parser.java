@@ -94,11 +94,6 @@ public class Parser {
 		}
 	}
 	
-	private void useImport(String s) {
-		
-		
-	}
-
 	private void parseLines(ListIterator<String> it, Function f) {
 		while(it.hasNext()){
 			String original = it.next();

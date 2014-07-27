@@ -1,3 +1,10 @@
+def greater a b
+	LD 0 0
+	LD 0 1
+	CGT
+end
+
+
 def or a b
 	if a
 		return 1
@@ -9,6 +16,15 @@ def or a b
 		endif
 	endif	
 end
+
+def notequal a b
+	if or (greater a b) (greater b a)
+		return 1
+	else 
+		return 0
+	endif
+end
+
 def and a b
 	if a
 		if b
